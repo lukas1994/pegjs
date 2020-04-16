@@ -990,6 +990,9 @@ function generateJS( ast, session, options ) {
         const code = compile( rule.bytecode );
 
         parts.push( "function peg$parse" + rule.name + "() {" );
+        parts.push('  var oldenv = env;');
+        parts.push('  env = Object.create(env);');
+        parts.push('  try {')
 
         if ( options.trace ) {
 
@@ -1014,6 +1017,7 @@ function generateJS( ast, session, options ) {
             "\"" + util.stringEscape( rule.name ) + "\"",
             s( 0 ),
         ) ) );
+        parts.push('} finally { env = oldenv; }')
 
         parts.push( "}" );
 
@@ -1694,6 +1698,7 @@ function generateJS( ast, session, options ) {
                     "(function() {",
                     "  \"use strict\";",
                     "",
+                    "var env = {};",
                     indent2( toplevelCode ),
                     "",
                     indent2( "return " + generateParserObject() + ";" ),
